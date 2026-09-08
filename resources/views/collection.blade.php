@@ -1,0 +1,7 @@
+@extends('layouts.app')
+@section('title', 'Achievements')
+@section('file', 'little-wins/')
+@section('content')
+<header class="page-heading"><a class="text-link back-link" href="{{ route('mahasiswa.show', $profile['nrp']) }}">← Back to about</a><p class="eyebrow">MOMENTS WORTH KEEPING</p><h1>Little wins,<br><em>properly archived.</em></h1><p>Eight milestones, sorted from newest to earliest - each one a reminder to keep showing up.</p></header>
+<div class="page-content"><div class="achievement-grid">@foreach($profile['achievements'] as $achievement)<article class="achievement-card reveal"><div class="achievement-window-bar"><span>award_{{ $achievement['year'] }}_{{ $achievement['id'] }}.file</span><span aria-hidden="true">- □ ×</span></div><div class="achievement-media">@if($achievement['image'])<img src="{{ asset('images/achievements/'.$achievement['image']) }}" alt="{{ $achievement['event'] }} achievement" loading="lazy" width="600" height="400">@else<div class="achievement-placeholder" aria-hidden="true"><span>★</span><small>ARCHIVED MEMORY</small></div>@endif</div><div class="achievement-copy"><span class="achievement-year">{{ $achievement['year'] }}</span><p class="eyebrow">{{ $achievement['organizer'] }}</p><h2>{{ $achievement['title'] }}</h2><h3>{{ $achievement['event'] }}</h3><p>{{ $achievement['description'] }}</p>@if($achievement['document'])<a class="text-link" href="{{ asset('documents/'.$achievement['document']) }}" target="_blank">View certificate ↗</a>@endif</div></article>@endforeach</div></div>
+@endsection

@@ -1,0 +1,7 @@
+@extends('layouts.app')
+@section('title', 'Résumé')
+@section('file', 'angela.resume')
+@section('content')
+<header class="page-heading"><p class="eyebrow">RÉSUMÉ / ACADEMIC PROFILE</p><h1>{{ $profile['name'] }}</h1><p>{{ $profile['degree'] }} · {{ $profile['university'] }} · NRP {{ $profile['nrp'] }}</p><div class="button-row no-print"><a class="button primary" href="{{ route('resume.download') }}">Download latest CV ↓</a><button class="button secondary" data-print type="button" hidden>Print this profile ↗</button><noscript><p>Use your browser’s Print menu to save this page as a PDF.</p></noscript></div></header>
+<div class="page-content stack"><section class="panel"><h2>Profile</h2><p>{{ $profile['about'] }}</p><p>{{ $profile['contact']['email'] }} · {{ $profile['location'] }}</p></section><section class="panel"><h2>Education</h2>@foreach($profile['education'] as $education)<p><strong>{{ $education['school'] }}</strong><br>{{ $education['degree'] }} · {{ $education['period'] }} · {{ $education['score'] }}</p>@endforeach</section><section class="panel"><h2>Projects</h2>@foreach($profile['projects'] as $project)<p><strong>{{ $project['title'] }} · {{ $project['role'] }}</strong><br>{{ $project['year'] }} — {{ $project['summary'] }}</p>@endforeach</section><section class="panel"><h2>Skills</h2><p>{{ implode(' · ', $profile['skills']) }}</p><p>{{ implode(' · ', $profile['soft_skills']) }}</p></section></div>
+@endsection
