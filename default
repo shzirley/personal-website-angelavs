@@ -6,6 +6,8 @@ server {
     index index.php;
     charset utf-8;
     port_in_redirect off;
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
 
     location / {
         try_files $uri $uri/ /index.php?$query_string;
