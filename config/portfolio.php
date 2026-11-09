@@ -32,6 +32,7 @@ return [
         ['period' => 'Jan 2022 - Dec 2023', 'role' => 'Vice Chair', 'organization' => 'KIRSMADA', 'description' => 'Helping members develop research ideas, planning scientific activities, and setting shared goals for the team.'],
         ['period' => 'Nov 2022 - Jan 2023', 'role' => 'Member', 'organization' => 'Rumah Teknologi', 'description' => 'Working on Green Saldo, a Kodular-built Android app connecting waste management with local small businesses.'],
     ],
+    // Initial data for DatabaseSeeder; the site reads 'projects' and 'achievements' from the database.
     'projects' => [
         'claritas' => [
             'title' => 'CLARITAS', 'category' => 'AI / HEALTH-TECH', 'role' => 'Chief Operating Officer (COO)', 'year' => '2026 - present',

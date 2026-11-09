@@ -38,6 +38,9 @@
                 <a class="footer-signature" href="{{ route('home') }}">Angela <span aria-hidden="true">✿</span></a>
                 <span>© {{ date('Y') }} {{ $profile['short_name'] }} · Made with a curious mind.</span>
                 <button type="button" data-motion-toggle hidden aria-pressed="true">Motion: on</button>
+                @auth
+                    <form method="POST" action="{{ route('logout') }}">@csrf<button type="submit">Log out</button></form>
+                @endauth
             </footer>
         </div>
         <aside class="dock-rail">

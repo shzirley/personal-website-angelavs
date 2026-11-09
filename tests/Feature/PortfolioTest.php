@@ -2,12 +2,22 @@
 
 namespace Tests\Feature;
 
+use App\Models\Project;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class PortfolioTest extends TestCase
 {
+    use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->seed();
+    }
+
     public static function pages(): array
     {
         return array_map(fn ($path) => [$path], [
@@ -83,6 +93,13 @@ class PortfolioTest extends TestCase
         rsort($sorted);
         $this->assertSame($sorted, $years);
         $this->get('/collection')->assertSeeInOrder(['BRIN AIDeaNation', 'Datathon RISTEK UI', 'Hult Prize Indonesia', 'Dinus App Competition 11.0', 'DigiHack']);
+    }
+
+    public function test_seeder_adds_archived_faker_projects_hidden_from_the_public_site(): void
+    {
+        $this->assertSame(33, Project::count());
+        $this->assertSame(30, Project::where('is_active', false)->count());
+        $this->assertCount(3, $this->get('/projects')->viewData('profile')['projects']);
     }
 
     public function test_latest_resume_and_claritas_role_are_used(): void

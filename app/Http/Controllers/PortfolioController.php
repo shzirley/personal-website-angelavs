@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Project;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -26,10 +27,9 @@ class PortfolioController
 
     public function project(string $project): View
     {
-        $projects = config('portfolio.projects');
-        abort_unless(isset($projects[$project]), 404);
+        $record = Project::where('is_active', true)->where('slug', $project)->firstOrFail();
 
-        return view('project', ['project' => $projects[$project], 'selectedSlug' => $project]);
+        return view('project', ['project' => $record, 'selectedSlug' => $project]);
     }
 
     public function dashboard(): View

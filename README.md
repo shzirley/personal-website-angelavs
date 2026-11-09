@@ -1,26 +1,52 @@
 # AngelaOS
 
-Angela Vania Sugiyono's personal portfolio, designed as a playful pink retro-computer desktop. It is a standalone Laravel application with responsive layouts, keyboard-friendly controls, reduced-motion support, and no frontend build step.
+Angela Vania Sugiyono's personal portfolio, designed as a playful pink retro-computer desktop. It is a standalone Laravel application with responsive layouts, keyboard-friendly controls, reduced-motion support, and an admin dashboard with role-based access control (Pertemuan 10). Built frontend assets are committed, so npm is only needed when changing the login page styles.
 
 ## Run locally
 
-Run all commands from `personal-website-angela`, not the group repository root.
+Run all commands from the project root.
 
 ```powershell
-cd personal-website-angela
 composer install
 if (-not (Test-Path .env)) {
     Copy-Item .env.example .env
     php artisan key:generate
 }
+if (-not (Test-Path database\database.sqlite)) {
+    New-Item -ItemType File database\database.sqlite
+}
+php artisan migrate:fresh --seed
 php artisan serve --host=127.0.0.1 --port=8012
 ```
 
-Open `http://127.0.0.1:8012`. The portfolio does not require a database, login, npm, or an AI API. Local fonts and project imagery remain available offline; the optional music player needs an internet connection to load YouTube.
+Open `http://127.0.0.1:8012`. The portfolio does not require a login, npm, or an AI API, but it does need the SQLite database created above because projects and achievements are stored there. Local fonts and project imagery remain available offline; the optional music player needs an internet connection to load YouTube.
 
 The app has its own `composer.lock`. The group project's root `composer.lock` is not changed by this portfolio.
 
+## Admin dashboard & RBAC (Pertemuan 10)
+
+![Admin dashboard](docs/admin-dashboard.png)
+
+Login at `/login`. When `APP_ENV=local`, the login page also shows instant demo-login buttons.
+
+| Role | Email | Password | Access |
+| --- | --- | --- | --- |
+| Admin | `admin@angelaos.test` | `password` | View, add, edit, and delete projects and achievements |
+| Staf | `staf@angelaos.test` | `password` | View, add, and edit projects and achievements; cannot delete |
+
+- **UI:** AdminLTE, with every admin page using `@extends('adminlte::page')`. `public/css/admin.css` maps it onto the AngelaOS tokens, and the admin and login pages share the public fonts, Pink Desktop/Midnight Terminal themes, dock, and window styling.
+- **Authentication:** Laravel Breeze. Admin and Staf are redirected to `/admin/dashboard`; other users go to the public home page.
+- **Authorization:** Spatie Laravel Permission tables hold the roles and permissions. The `/admin` group uses `auth`, `verified`, and `role:Admin|Staf`.
+- **Controller protection:** `ProjectController::middleware()` applies a `permission:` middleware to each action. This is the Laravel 11+ replacement for `$this->middleware()` in a constructor.
+- **Delete:** only the Admin role holds `hapus-proyek`. The button is hidden with `@can`, and a direct `DELETE` request from Staf returns 403.
+- **Widgets:** Total Proyek, Total Prestasi, and Total Pengguna are read from the database with `count()`.
+- **Search and filter:** project (keyword, category, status) and achievement (keyword, year) filters use `when()`, and `withQueryString()` keeps them across pages.
+- **Seeder:** `php artisan migrate:fresh --seed` creates the roles, both accounts, Angela's real projects and achievements, and 30 Faker projects for the pagination demo. The Faker rows are archived, so they never appear on the public site.
+- **Uploads:** project images and achievement images or certificates are uploaded from the admin forms and stored in `public/` under random file names.
+- **One data source:** the public home, projects, achievements, and resume pages read the same `projects` and `achievements` tables as the admin panel. Setting a project to Arsip hides it from the public site.
+
 ## Pages
+
 
 | URL | Named route | Purpose |
 | --- | --- | --- |
@@ -38,6 +64,9 @@ The app has its own `composer.lock`. The group project's root `composer.lock` is
 | `/resume/download` | `resume.download` | Latest 2026 resume PDF |
 | `/dashboard` | `dashboard.index` | Academic route-group landing page |
 | `/dashboard/mahasiswa/{nrp}` | `dashboard.mahasiswa.show` | Profile inside the dashboard prefix |
+| `/admin/dashboard` | `admin.dashboard` | Admin and Staf dashboard with database widgets |
+| `/admin/projects` | `admin.projects.index` | Project CRUD with search, filters, and pagination |
+| `/admin/achievements` | `admin.achievements.index` | Achievement CRUD with search, year filter, and pagination |
 | unknown URL | `fallback` | Custom retro 404 response |
 
 All internal navigation uses Laravel named routes. Invalid profile parameters, unknown projects, and unknown URLs return a proper 404 response. The calculator accepts decimal commas or points from 0 to 4 and calculates an equally weighted two-semester average.
@@ -56,13 +85,13 @@ All internal navigation uses Laravel named routes. Invalid profile parameters, u
 
 ## Content sources
 
-The portfolio data in `config/portfolio.php` was updated from Angela's latest portfolio and resume, including current roles, project responsibilities, community work, and achievements. CLARITAS lists Angela as COO. BRIN AIDeaNation 2026 is included as the newest achievement. The downloadable resume is stored at `storage/app/public/resume/Angela_Vania_Sugiyono_Resume_2026.pdf`.
+The initial portfolio data in `config/portfolio.php`, loaded into the database by the seeder, was updated from Angela's latest portfolio and resume, including current roles, project responsibilities, community work, and achievements. CLARITAS lists Angela as COO. BRIN AIDeaNation 2026 is included as the newest achievement. The downloadable resume is stored at `storage/app/public/resume/Angela_Vania_Sugiyono_Resume_2026.pdf`.
 
 The site links to the official YouTube audio, Spotify track, and Apple Music lyrics page for “ROS”; it does not reproduce copyrighted lyrics or bundle the song file.
 
 ## Key files
 
-- `config/portfolio.php` — editable portfolio content.
+- `config/portfolio.php` — profile content and the initial projects and achievements for the seeder.
 - `routes/web.php` — public routes, regex constraint, route group, and fallback.
 - `resources/views/` — Blade templates and shared components.
 - `public/css/angela.css` — visual system, Home, motion, mascot, and music player.
@@ -95,5 +124,6 @@ Browser screenshots are saved under `tests/browser-output/`, which is ignored by
 3. Projects: move between projects, then minimize, maximize, close, and restore a preview window.
 4. Calculator: calculate 3.50 and 3.80 to produce 3.65, then enter 5 to show server validation.
 5. Code: point out named routes, the `/dashboard` prefix group, regex constraint, and fallback route.
+6. Admin: log in as Admin, edit a project, and show the change on `/projects`; then log in as Staf to show that the delete button is gone.
 
 `.env`, `vendor`, `node_modules`, generated caches, and local databases are excluded from source control. Publishing and LMS submission remain manual steps for the repository owner.
